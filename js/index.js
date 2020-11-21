@@ -1,11 +1,16 @@
 const form = document.querySelector("#github-form")
 const userList = document.querySelector("#user-list")
-// console.log(userList)
+const repoList = document.querySelector("#repos-list")
+// console.log(repoList)
 
 form.addEventListener("submit", event => {
     event.preventDefault()
     const input = event.target.search.value 
-    searchFetchRequest(input)
+    if(event.target.children[1]) {
+        searchFetchRequest(input)
+    } else if(event.target.children[2]) {
+        repoFetchRequest(input)
+    }
 })
 
 userList.addEventListener("click", event => {
@@ -25,7 +30,7 @@ const searchFetchRequest = searchValue => {
 const repoFetchRequest = (user) => {
     return fetch(`https://api.github.com/users/${user.textContent}/repos`)
         .then(response => response.json())
-        .then(repos => console.log(repos))
+        .then(repos => renderRepos(repos))
 }
 
 const renderSearchResults = (data) => {
@@ -43,3 +48,19 @@ const renderSearchResults = (data) => {
         userList.append(userH3, userP)
     })
 }
+
+const renderRepos = (repos) => {
+    userList.style.display = "none"
+    repos.forEach(repo => {
+        const repoLi = document.createElement("li")
+        repoLi.textContent = repo.name
+        const repoP = document.createElement("p")
+        const repoA = document.createElement("a")
+        repoA.href = repo.html_url
+        repoA.textContent = repo.full_name 
+        repoP.textContent = repo.owner.login 
+        repoLi.append(repoP, repoA)
+        repoList.append(repoLi)
+    })
+}
+
